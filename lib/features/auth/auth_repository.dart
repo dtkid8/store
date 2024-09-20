@@ -36,7 +36,7 @@ class AuthRepository extends AuthRepositoryProtocol {
     } on FirebaseAuthException catch (e) {
       return Left(Failure(errorMessage: "Authentication Error ${e.code}"));
     } catch (e) {
-      return Left(Failure(errorMessage: "Generic Error ${e.toString()}"));
+      return Left(Failure(errorMessage: "General Error ${e.toString()}"));
     }
   }
 
@@ -55,7 +55,7 @@ class AuthRepository extends AuthRepositoryProtocol {
     } on FirebaseAuthException catch (e) {
       return Left(Failure(errorMessage: "Authentication Error ${e.code}"));
     } catch (e) {
-      return Left(Failure(errorMessage: "Generic Error ${e.toString()}"));
+      return Left(Failure(errorMessage: "General Error ${e.toString()}"));
     }
   }
 
@@ -63,10 +63,10 @@ class AuthRepository extends AuthRepositoryProtocol {
   Future<Either<Failure, bool>> addUser({required user_model.User user}) async {
     try {
       final request = await sharedPreferences.setString(key, user.toJson());
-      if (!request) Left(Failure(errorMessage: "Generic Error Fail To Save"));
+      if (!request) Left(Failure(errorMessage: "General Error Fail To Save"));
       return const Right(true);
     } catch (e) {
-      return Left(Failure(errorMessage: "Generic Error ${e.toString()}"));
+      return Left(Failure(errorMessage: "General Error ${e.toString()}"));
     }
   }
 
@@ -79,7 +79,7 @@ class AuthRepository extends AuthRepositoryProtocol {
       }
       return Right(user_model.User.fromJson(result));
     } catch (e) {
-      return Left(Failure(errorMessage: "Generic Error ${e.toString()}"));
+      return Left(Failure(errorMessage: "General Error ${e.toString()}"));
     }
   }
 
@@ -91,7 +91,7 @@ class AuthRepository extends AuthRepositoryProtocol {
     } on FirebaseAuthException catch (e) {
       return Left(Failure(errorMessage: "Authentication Error ${e.code}"));
     } catch (e) {
-      return Left(Failure(errorMessage: "Generic Error ${e.toString()}"));
+      return Left(Failure(errorMessage: "General Error ${e.toString()}"));
     }
   }
 }

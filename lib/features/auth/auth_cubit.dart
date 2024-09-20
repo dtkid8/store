@@ -34,7 +34,6 @@ class AuthCubit extends Cubit<GenericState> {
         emit(GenericErrorState(errorMessage: l.errorMessage));
       }, (r) {
         _user = user;
-        print("login $_user");
         emit(GenericLoadedState(data: _user));
       });
     });
