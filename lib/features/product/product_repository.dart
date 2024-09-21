@@ -8,6 +8,7 @@ import 'package:store/features/product/product_response.dart';
 abstract class ProductRepositoryProtocol {
   Future<Either<Failure, List<Product>>> getProduct({
     int? categoryId,
+    String? title,
   });
 }
 
@@ -17,12 +18,17 @@ class ProductRepository extends ProductRepositoryProtocol {
   @override
   Future<Either<Failure, List<Product>>> getProduct({
     int? categoryId,
+    String? title,
   }) async {
     try {
       Map<String, dynamic> queryParameters = {};
       if (categoryId != null) {
         queryParameters["categoryId"] = categoryId;
       }
+      if (title != null) {
+        queryParameters["title"] = title;
+      }
+      
       final request = await client.get(
         Url.product,
         queryParameters: queryParameters,

@@ -25,65 +25,73 @@ class _LoginPageState extends State<LoginPage> {
             content: Text(state.errorMessage),
           );
           ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        } else if (state is GenericLoadedState) {
+          Navigator.pushReplacementNamed(context, "/product");
         }
       },
       child: Scaffold(
         body: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             BlocBuilder<AuthCubit, GenericState>(
               builder: (context, state) {
                 if (state is GenericLoadingState) {
                   return const Center(
-                    child: CircularProgressIndicator(),
+                    child: CircularProgressIndicator(
+                      color: Colors.black,
+                    ),
                   );
                 }
                 return Form(
                   key: _key,
-                  child: Column(
-                    children: [
-                      StoreTextFormField(
-                        label: "Email",
-                        controller: _emailController,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter an Email';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(
-                        height: 8,
-                      ),
-                      StoreTextFormField(
-                        label: "Password",
-                        obscureText: true,
-                        controller: _passwordController,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter a Password';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(
-                        height: 8,
-                      ),
-                      ElevatedButton(
-                          onPressed: () {
-                            if (_key.currentState!.validate()) {
-                              context.read<AuthCubit>().login(
-                                  password: _passwordController.text,
-                                  email: _emailController.text);
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        StoreTextFormField(
+                          label: "Email",
+                          controller: _emailController,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter an Email';
                             }
+                            return null;
                           },
-                          child: const Text("Login")),
-                      ElevatedButton(
-                          onPressed: () {
-                            Navigator.pushReplacementNamed(
-                                context, "/register");
+                        ),
+                        const SizedBox(
+                          height: 8,
+                        ),
+                        StoreTextFormField(
+                          label: "Password",
+                          obscureText: true,
+                          controller: _passwordController,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter a Password';
+                            }
+                            return null;
                           },
-                          child: const Text("Register")),
-                    ],
+                        ),
+                        const SizedBox(
+                          height: 8,
+                        ),
+                        ElevatedButton(
+                            onPressed: () {
+                              if (_key.currentState!.validate()) {
+                                context.read<AuthCubit>().login(
+                                    password: _passwordController.text,
+                                    email: _emailController.text);
+                              }
+                            },
+                            child: const Text("Login")),
+                        ElevatedButton(
+                            onPressed: () {
+                              Navigator.pushReplacementNamed(
+                                  context, "/register");
+                            },
+                            child: const Text("Register")),
+                      ],
+                    ),
                   ),
                 );
               },

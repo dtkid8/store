@@ -1,7 +1,8 @@
+import 'dart:math';
+
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:store/core/extension.dart';
 import 'package:store/features/product/product.dart';
 
 class ProductDetailPage extends StatefulWidget {
@@ -65,139 +66,184 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final imageSize = size.width;
-
+    Random random = Random();
+    double randomRating = 1.0 + (random.nextDouble() * 4.0);
+    int randomReview = random.nextInt(100);
     return Scaffold(
-      body: Stack(
-        children: [
-          SizedBox(
-            width: double.infinity,
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Hero(
-                    tag: widget.product.id,
-                    child: SizedBox(
-                      width: imageSize,
-                      height: imageSize,
-                      child: Stack(
-                        children: [
-                          GestureDetector(
-                            onHorizontalDragEnd: _handleSwipe,
-                            child: PageView.builder(
-                              controller: _pageController,
-                              itemCount: widget.product.images.length,
-                              onPageChanged: _onPageChanged,
-                              itemBuilder: (context, index) {
-                                return ClipRRect(
-                                  borderRadius: const BorderRadius.vertical(
-                                    bottom: Radius.circular(8),
-                                  ),
-                                  child: CachedNetworkImage(
-                                    fit: BoxFit.cover,
-                                    imageUrl: widget.product.images[index],
-                                    progressIndicatorBuilder:
-                                        (context, url, downloadProgress) =>
-                                            Center(
-                                      child: CircularProgressIndicator(
-                                        value: downloadProgress.progress,
-                                      ),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            SizedBox(
+              width: double.infinity,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Hero(
+                      tag: widget.product.id,
+                      child: SizedBox(
+                        width: imageSize,
+                        height: imageSize,
+                        child: Stack(
+                          children: [
+                            GestureDetector(
+                              onHorizontalDragEnd: _handleSwipe,
+                              child: PageView.builder(
+                                controller: _pageController,
+                                itemCount: widget.product.images.length,
+                                onPageChanged: _onPageChanged,
+                                itemBuilder: (context, index) {
+                                  return ClipRRect(
+                                    borderRadius: const BorderRadius.vertical(
+                                      bottom: Radius.circular(8),
                                     ),
-                                    errorWidget: (context, url, error) =>
-                                        const Icon(Icons.error),
+                                    child: CachedNetworkImage(
+                                      fit: BoxFit.cover,
+                                      imageUrl: widget.product.images[index],
+                                      progressIndicatorBuilder:
+                                          (context, url, downloadProgress) =>
+                                              Center(
+                                        child: CircularProgressIndicator(
+                                          value: downloadProgress.progress,
+                                        ),
+                                      ),
+                                      errorWidget: (context, url, error) =>
+                                          const Icon(Icons.error),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            Visibility(
+                              visible: _currentPage > 0,
+                              child: Positioned(
+                                left: 16,
+                                top: imageSize / 2 - 20,
+                                child: IconButton(
+                                  icon: const Icon(
+                                    Icons.arrow_back_ios,
                                   ),
-                                );
-                              },
-                            ),
-                          ),
-                          Visibility(
-                            visible: _currentPage > 0,
-                            child: Positioned(
-                              left: 16,
-                              top: imageSize / 2 - 20,
-                              child: IconButton(
-                                icon: const Icon(
-                                  Icons.arrow_back_ios,
+                                  onPressed: _goToPreviousPage,
                                 ),
-                                onPressed: _goToPreviousPage,
                               ),
                             ),
-                          ),
-                          Visibility(
-                            visible:
-                                _currentPage < widget.product.images.length - 1,
-                            child: Positioned(
+                            Visibility(
+                              visible:
+                                  _currentPage < widget.product.images.length - 1,
+                              child: Positioned(
+                                right: 16,
+                                top: imageSize / 2 - 20,
+                                child: IconButton(
+                                  icon: const Icon(
+                                    Icons.arrow_forward_ios,
+                                  ),
+                                  onPressed: _goToNextPage,
+                                ),
+                              ),
+                            ),
+                            Positioned(
                               right: 16,
-                              top: imageSize / 2 - 20,
-                              child: IconButton(
-                                icon: const Icon(
-                                  Icons.arrow_forward_ios,
+                              bottom: 16,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.black54,
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
-                                onPressed: _goToNextPage,
+                                child: Text(
+                                  '${_currentPage + 1}/${widget.product.images.length}',
+                                  style: const TextStyle(color: Colors.white),
+                                ),
                               ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Rp ${widget.product.price.format()}",
+                                style: Theme.of(context).textTheme.titleLarge,
+                              ),
+                              const Icon(
+                                Icons.favorite,
+                                size: 32,
+                              )
+                            ],
+                          ),
+                          Text(
+                            widget.product.title,
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                          Positioned(
-                            right: 16,
-                            bottom: 16,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: Colors.black54,
-                                borderRadius: BorderRadius.circular(12),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    margin: const EdgeInsets.only(right: 4),
+                                    child: const Icon(
+                                      Icons.star,
+                                      color: Colors.yellow,
+                                      size: 18,
+                                    ),
+                                  ),
+                                  Text(
+                                    randomRating.toStringAsFixed(1),
+                                    style: Theme.of(context).textTheme.bodyMedium,
+                                  )
+                                ],
                               ),
-                              child: Text(
-                                '${_currentPage + 1}/${widget.product.images.length}',
-                                style: const TextStyle(color: Colors.white),
+                              Text(
+                                "${randomReview.toString()} Reviews",
+                                style: Theme.of(context).textTheme.bodyMedium,
                               ),
-                            ),
+                            ],
+                          ),
+                          Text(
+                            widget.product.description,
+                            style: Theme.of(context).textTheme.bodyLarge,
+                            textAlign: TextAlign.justify,
                           ),
                         ],
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(
-                      widget.product.title,
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text(
-                      widget.product.description,
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-          Positioned(
-            top: 16.0,
-            left: 16.0,
-            child: IconButton(
-              iconSize: 32,
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              icon: const Icon(Icons.arrow_back),
+            Positioned(
+              top: 16.0,
+              left: 16.0,
+              child: IconButton(
+                iconSize: 32,
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                icon: const Icon(Icons.arrow_back),
+              ),
             ),
-          ),
-          Positioned(
-            top: 16.0,
-            right: 16.0,
-            child: IconButton(
-              iconSize: 32,
-              onPressed: () {},
-              icon: const Icon(Icons.shopping_cart),
+            Positioned(
+              top: 16.0,
+              right: 16.0,
+              child: IconButton(
+                iconSize: 32,
+                onPressed: () {},
+                icon: const Icon(Icons.shopping_cart),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

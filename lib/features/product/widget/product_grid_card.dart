@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:store/core/extension.dart';
 import 'package:store/features/product/product.dart';
 
 class ProductCardGrid extends StatefulWidget {
@@ -37,6 +40,9 @@ class _ProductCardGridState extends State<ProductCardGrid>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    Random random = Random();
+    double randomRating = 1.0 + (random.nextDouble() * 4.0);
+    int randomReview = random.nextInt(100);
     return ScaleTransition(
       scale: _scaleAnimation,
       child: FadeTransition(
@@ -50,6 +56,8 @@ class _ProductCardGridState extends State<ProductCardGrid>
             );
           },
           child: Card(
+            elevation: 8.0,
+            shadowColor: Colors.black.withOpacity(0.5),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -73,11 +81,45 @@ class _ProductCardGridState extends State<ProductCardGrid>
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    widget.product.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.product.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      Text(
+                        "Rp ${widget.product.price.format()}",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                margin: const EdgeInsets.only(right: 4),
+                                child: const Icon(
+                                  Icons.star,
+                                  color: Colors.yellow,
+                                  size: 14,
+                                ),
+                              ),
+                              Text(
+                                randomRating.toStringAsFixed(1),
+                                style:
+                                    Theme.of(context).textTheme.bodySmall,
+                              )
+                            ],
+                          ),
+                          Text("${randomReview.toString()} Reviews"),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ],

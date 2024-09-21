@@ -1,12 +1,14 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
+import 'package:store/features/category/category_response.dart';
+
 class Category {
-    int id;
-    String name;
-    String image;
-    DateTime creationAt;
-    DateTime updatedAt;
+  int id;
+  String name;
+  String image;
+  DateTime creationAt;
+  DateTime updatedAt;
   Category({
     required this.id,
     required this.name,
@@ -14,7 +16,6 @@ class Category {
     required this.creationAt,
     required this.updatedAt,
   });
-
 
   Category copyWith({
     int? id,
@@ -52,9 +53,20 @@ class Category {
     );
   }
 
+  factory Category.fromResponse(CategoryResponse response) {
+    return Category(
+      id: response.id ?? 0,
+      name: response.name ?? "",
+      image: response.image ?? "",
+      creationAt: response.creationAt ?? DateTime(0),
+      updatedAt: response.updatedAt ?? DateTime(0),
+    );
+  }
+
   String toJson() => json.encode(toMap());
 
-  factory Category.fromJson(String source) => Category.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory Category.fromJson(String source) =>
+      Category.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {
@@ -64,21 +76,20 @@ class Category {
   @override
   bool operator ==(covariant Category other) {
     if (identical(this, other)) return true;
-  
-    return 
-      other.id == id &&
-      other.name == name &&
-      other.image == image &&
-      other.creationAt == creationAt &&
-      other.updatedAt == updatedAt;
+
+    return other.id == id &&
+        other.name == name &&
+        other.image == image &&
+        other.creationAt == creationAt &&
+        other.updatedAt == updatedAt;
   }
 
   @override
   int get hashCode {
     return id.hashCode ^
-      name.hashCode ^
-      image.hashCode ^
-      creationAt.hashCode ^
-      updatedAt.hashCode;
+        name.hashCode ^
+        image.hashCode ^
+        creationAt.hashCode ^
+        updatedAt.hashCode;
   }
 }

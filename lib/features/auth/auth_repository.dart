@@ -86,6 +86,7 @@ class AuthRepository extends AuthRepositoryProtocol {
   @override
   Future<Either<Failure, bool>> logout() async {
     try {
+      sharedPreferences.remove(key);
       await firebaseAuth.signOut();
       return const Right(true);
     } on FirebaseAuthException catch (e) {

@@ -11,9 +11,12 @@ class ProductCubit extends Cubit<GenericState> {
     required this.productRepository,
   }) : super(GenericInitializeState());
 
-  void fetch() async {
+  void fetch({int? categoryId, String? title}) async {
     emit(GenericLoadingState());
-    final result = await productRepository.getProduct();
+    final result = await productRepository.getProduct(
+      categoryId: categoryId,
+      title: title,
+    );
     result.fold((l) {
       emit(GenericErrorState(errorMessage: l.errorMessage));
     }, (r) {
