@@ -1,13 +1,26 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
+import 'package:hive/hive.dart';
 import 'package:store/features/category/category_response.dart';
 
+part 'category.g.dart';
+
+@HiveType(typeId: 1)
 class Category {
+  @HiveField(0)
   int id;
+
+  @HiveField(1)
   String name;
+
+  @HiveField(2)
   String image;
+
+  @HiveField(3)
   DateTime creationAt;
+
+  @HiveField(4)
   DateTime updatedAt;
   Category({
     required this.id,

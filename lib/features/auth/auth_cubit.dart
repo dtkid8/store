@@ -27,10 +27,8 @@ class AuthCubit extends Cubit<GenericState> {
     final result = await repository.login(email: email, password: password);
     final user = User(email: email);
     result.fold((l) {
-      print("data ${l.errorMessage}");
       emit(GenericErrorState(errorMessage: l.errorMessage));
     }, (r) async {
-      print("data ${r}");
       final addUser = await repository.addUser(user: user);
       addUser.fold((l) {
         emit(GenericErrorState(errorMessage: l.errorMessage));
@@ -42,12 +40,14 @@ class AuthCubit extends Cubit<GenericState> {
   }
 
   void check() async {
+    print("dataku");
     final result = await repository.getUser();
     result.fold((l) {
       emit(GenericErrorState(errorMessage: l.errorMessage));
       emit(GenericInitializeState());
     }, (r) {
       _user = r;
+      print("dataku $_user");
       emit(GenericLoadedState(data: _user));
     });
   }
@@ -55,10 +55,8 @@ class AuthCubit extends Cubit<GenericState> {
   void logout() async {
     final result = await repository.logout();
     result.fold((l) {
-      print("data ${l.errorMessage}");
       emit(GenericErrorState(errorMessage: l.errorMessage));
     }, (r) {
-      print("data $r");
       emit(GenericInitializeState());
     });
   }

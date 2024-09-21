@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:store/core/widgets/store_logo.dart';
 import 'package:store/features/auth/auth_cubit.dart';
 import 'package:store/features/category/category_card.dart';
 import 'package:store/features/category/category_cubit.dart';
@@ -44,6 +46,7 @@ class ProductView extends StatefulWidget {
 class _ProductViewState extends State<ProductView> {
   @override
   void initState() {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.initState();
     context.read<ProductCubit>().fetch();
     context.read<CategoryCubit>().fetch();
@@ -62,7 +65,10 @@ class _ProductViewState extends State<ProductView> {
             iconSize: 32,
           );
         }),
-        title: const Text("Product"),
+        title: const StoreLogo(
+          size: 24,
+          isShowSlogan: false,
+        ),
         actions: [
           IconButton(
             onPressed: () {
@@ -72,7 +78,9 @@ class _ProductViewState extends State<ProductView> {
             iconSize: 32,
           ),
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(context, "/cart");
+            },
             icon: const Icon(Icons.shopping_cart),
             iconSize: 32,
           )
@@ -156,15 +164,15 @@ class _ProductViewState extends State<ProductView> {
                       itemBuilder: (context, index) {
                         final category = categories[index];
                         return CategoryCard(
-                            isSelected: selectedIndex == index,
-                            onTap: () {
-                              context.read<CategoryCubit>().change(index);
-                              context.read<ProductCubit>().fetch(
-                                  categoryId: index == 0
-                                      ? null
-                                      : categories[index].id);
-                            },
-                            label: category.name);
+                          isSelected: selectedIndex == index,
+                          onTap: () {
+                            context.read<CategoryCubit>().change(index);
+                            context.read<ProductCubit>().fetch(
+                                categoryId:
+                                    index == 0 ? null : categories[index].id);
+                          },
+                          label: category.name,
+                        );
                       },
                     ),
                   );

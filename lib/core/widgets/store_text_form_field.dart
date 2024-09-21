@@ -10,6 +10,7 @@ class StoreTextFormField extends StatefulWidget {
   final Duration debounceDuration;
   final String? hintText;
   final Widget? suffixIcon;
+  final Widget? prefixIcon;
   const StoreTextFormField({
     super.key,
     required this.controller,
@@ -20,6 +21,7 @@ class StoreTextFormField extends StatefulWidget {
     this.debounceDuration = const Duration(milliseconds: 300),
     this.hintText,
     this.suffixIcon,
+    this.prefixIcon,
   });
 
   @override
@@ -53,6 +55,7 @@ class _StoreTextFormFieldState extends State<StoreTextFormField> {
       controller: widget.controller,
       validator: widget.validator,
       decoration: InputDecoration(
+        prefixIcon: widget.prefixIcon,
         suffixIcon: widget.suffixIcon,
         labelText: widget.label,
         filled: true,

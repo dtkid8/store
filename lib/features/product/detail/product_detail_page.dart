@@ -2,7 +2,10 @@ import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:store/core/extension.dart';
+import 'package:store/features/cart/cart_cubit.dart';
 import 'package:store/features/product/product.dart';
 
 class ProductDetailPage extends StatefulWidget {
@@ -22,11 +25,13 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   void initState() {
     super.initState();
     _pageController = PageController();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   }
 
   @override
   void dispose() {
     _pageController.dispose();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.dispose();
   }
 
@@ -63,6 +68,11 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   }
 
   @override
+  void didUpdateWidget(covariant ProductDetailPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final imageSize = size.width;
@@ -70,6 +80,15 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     double randomRating = 1.0 + (random.nextDouble() * 4.0);
     int randomReview = random.nextInt(100);
     return Scaffold(
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: ElevatedButton(
+          onPressed: () {
+            context.read<CartCubit>().addItem(widget.product);
+          },
+          child: const Text("Add To Cart"),
+        ),
+      ),
       body: SafeArea(
         child: Stack(
           children: [
@@ -127,8 +146,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                               ),
                             ),
                             Visibility(
-                              visible:
-                                  _currentPage < widget.product.images.length - 1,
+                              visible: _currentPage <
+                                  widget.product.images.length - 1,
                               child: Positioned(
                                 right: 16,
                                 top: imageSize / 2 - 20,
@@ -200,7 +219,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                   ),
                                   Text(
                                     randomRating.toStringAsFixed(1),
-                                    style: Theme.of(context).textTheme.bodyMedium,
+                                    style:
+                                        Theme.of(context).textTheme.bodyMedium,
                                   )
                                 ],
                               ),
@@ -238,7 +258,12 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               right: 16.0,
               child: IconButton(
                 iconSize: 32,
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pushNamed(context, "/cart").then(
+                    (value) => SystemChrome.setEnabledSystemUIMode(
+                        SystemUiMode.immersiveSticky),
+                  );
+                },
                 icon: const Icon(Icons.shopping_cart),
               ),
             ),

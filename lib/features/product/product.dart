@@ -1,20 +1,36 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
-
-import 'package:flutter/foundation.dart';
+import 'package:hive/hive.dart';
 import 'package:store/features/product/product_response.dart';
-
 import '../category/category.dart' as model;
+part 'product.g.dart';
 
+@HiveType(typeId: 0)
 class Product {
+  @HiveField(0)
   final int id;
+
+  @HiveField(1)
   final String title;
+
+  @HiveField(2)
   final int price;
+
+  @HiveField(3)
   final String description;
+
+  @HiveField(4)
   final List<String> images;
+
+  @HiveField(5)
   final DateTime creationAt;
+
+  @HiveField(6)
   final DateTime updatedAt;
+
+  @HiveField(7)
   final model.Category category;
+
   Product({
     required this.id,
     required this.title,
@@ -103,29 +119,29 @@ class Product {
     return 'Product(id: $id, title: $title, price: $price, description: $description, images: $images, creationAt: $creationAt, updatedAt: $updatedAt, category: $category)';
   }
 
-  @override
-  bool operator ==(covariant Product other) {
-    if (identical(this, other)) return true;
+  // @override
+  // bool operator ==(covariant Product other) {
+  //   if (identical(this, other)) return true;
 
-    return other.id == id &&
-        other.title == title &&
-        other.price == price &&
-        other.description == description &&
-        listEquals(other.images, images) &&
-        other.creationAt == creationAt &&
-        other.updatedAt == updatedAt &&
-        other.category == category;
-  }
+  //   return other.id == id &&
+  //       other.title == title &&
+  //       other.price == price &&
+  //       other.description == description &&
+  //       listEquals(other.images, images) &&
+  //       other.creationAt == creationAt &&
+  //       other.updatedAt == updatedAt &&
+  //       other.category == category;
+  // }
 
-  @override
-  int get hashCode {
-    return id.hashCode ^
-        title.hashCode ^
-        price.hashCode ^
-        description.hashCode ^
-        images.hashCode ^
-        creationAt.hashCode ^
-        updatedAt.hashCode ^
-        category.hashCode;
-  }
+  // @override
+  // int get hashCode {
+  //   return id.hashCode ^
+  //       title.hashCode ^
+  //       price.hashCode ^
+  //       description.hashCode ^
+  //       images.hashCode ^
+  //       creationAt.hashCode ^
+  //       updatedAt.hashCode ^
+  //       category.hashCode;
+  // }
 }

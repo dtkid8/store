@@ -47,6 +47,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: "^0.13.1"
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -62,6 +63,8 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  assets:
+      - assets/
   uses-material-design: true
   fonts:
     - family: Montserrat
@@ -110,3 +113,15 @@ flutter:
         - asset: fonts/Montserrat-ThinItalic.ttf
           weight: 100
           style: italic
+
+flutter_launcher_icons:
+  image_path_android: "assets/logo.png"
+  image_path_ios: "assets/logo.png"
+  android: true 
+  ios: true
+  adaptive_icon_background: "assets/logo.png" 
+  adaptive_icon_foreground: "assets/logo.png" 
+  adaptive_icon_monochrome: "assets/logo.png" 
+  min_sdk_android: 21 
+  remove_alpha_ios: true
+  background_color_ios: "#ffffff"

@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
@@ -11,7 +10,10 @@ import 'package:store/core/firebase_options.dart';
 import 'package:store/features/auth/auth_cubit.dart';
 import 'package:store/features/auth/auth_repository.dart';
 import 'package:store/features/cart/cart.dart';
+import 'package:store/features/cart/cart_cubit.dart';
+import 'package:store/features/cart/cart_page.dart';
 import 'package:store/features/cart/cart_repository.dart';
+import 'package:store/features/category/category.dart';
 import 'package:store/features/category/category_repository.dart';
 import 'package:store/features/product/detail/product_detail_page.dart';
 import 'package:store/features/product/product_page.dart';
@@ -24,16 +26,19 @@ import 'features/product/product.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  //SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: [SystemUiOverlay.bottom]);
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   final appDocumentDirectory = await getApplicationDocumentsDirectory();
   Hive.init(appDocumentDirectory.path);
 
+  Hive.registerAdapter(ProductAdapter());
+  Hive.registerAdapter(CategoryAdapter());
+  Hive.registerAdapter(CartAdapter());
+
   Box<Cart> cartBox = await Hive.openBox<Cart>('cartBox');
   final CartRepository cartRepository = CartRepository(cartBox);
+
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   final SharedPreferences sharedPreferences =
       await SharedPreferences.getInstance();
@@ -55,9 +60,19 @@ void main() async {
         RepositoryProvider(
           create: (context) => categoryRepository,
         ),
+        RepositoryProvider(
+          create: (context) => cartRepository,
+        ),
       ],
-      child: BlocProvider(
-        create: (context) => AuthCubit(repository: authRepository),
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) => AuthCubit(repository: authRepository),
+          ),
+          BlocProvider(
+            create: (context) => CartCubit(cartRepository: cartRepository),
+          ),
+        ],
         child: const StoreApp(),
       ),
     ),
@@ -80,7 +95,7 @@ class StoreApp extends StatelessWidget {
             backgroundColor: MaterialStateProperty.resolveWith<Color>(
                 (Set<MaterialState> states) {
               if (states.contains(MaterialState.pressed)) {
-                return Colors.blueGrey;
+                return Colors.grey;
               }
               return Colors.black;
             }),
@@ -129,6 +144,7 @@ class StoreApp extends StatelessWidget {
         '/productDetail': (context) => ProductDetailPage(
             product: ModalRoute.of(context)!.settings.arguments as Product),
         '/search': (context) => const ProductSearchPage(),
+        '/cart': (context) => const CartPage(),
       },
       title: 'Store',
     );

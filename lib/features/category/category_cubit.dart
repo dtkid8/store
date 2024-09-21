@@ -21,7 +21,7 @@ class CategoryCubit extends Cubit<GenericState> {
     required this.categoryRepository,
   }) : super(GenericInitializeState());
 
-  void fetch() async {
+  Future<void> fetch() async {
     emit(GenericLoadingState());
     final result = await categoryRepository.getCategory();
     result.fold((l) {

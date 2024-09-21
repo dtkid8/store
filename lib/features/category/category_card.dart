@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:store/core/extension.dart';
 
-class CategoryCard extends StatelessWidget {
+class CategoryCard extends StatefulWidget {
   final Function()? onTap;
   final bool isSelected;
   final String label;
@@ -13,20 +13,25 @@ class CategoryCard extends StatelessWidget {
   });
 
   @override
+  State<CategoryCard> createState() => _CategoryCardState();
+}
+
+class _CategoryCardState extends State<CategoryCard> {
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        onTap?.call;
+        widget.onTap?.call();
       },
       child: Card(
-        color: isSelected ? Colors.black : Colors.white,
+        color: widget.isSelected ? Colors.black : Colors.white,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Center(
             child: Text(
-              label.capitalizeEachWord(),
+              widget.label.capitalizeEachWord(),
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: isSelected ? Colors.white : Colors.black,
+                    color: widget.isSelected ? Colors.white : Colors.black,
                   ),
             ),
           ),
