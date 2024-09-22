@@ -92,22 +92,22 @@ class StoreApp extends StatelessWidget {
         fontFamily: 'Montserrat',
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                (Set<MaterialState> states) {
-              if (states.contains(MaterialState.pressed)) {
+            backgroundColor: WidgetStateProperty.resolveWith<Color>(
+                (Set<WidgetState> states) {
+              if (states.contains(WidgetState.pressed)) {
                 return Colors.grey;
               }
               return Colors.black;
             }),
-            foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-            padding: MaterialStateProperty.all<EdgeInsets>(
+            foregroundColor: WidgetStateProperty.all<Color>(Colors.white),
+            padding: WidgetStateProperty.all<EdgeInsets>(
                 const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0)),
-            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+            shape: WidgetStateProperty.all<RoundedRectangleBorder>(
               RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12.0),
               ),
             ),
-            elevation: MaterialStateProperty.all<double>(5),
+            elevation: WidgetStateProperty.all<double>(5),
           ),
         ),
         textTheme: const TextTheme(

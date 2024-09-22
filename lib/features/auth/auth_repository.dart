@@ -63,7 +63,9 @@ class AuthRepository extends AuthRepositoryProtocol {
   Future<Either<Failure, bool>> addUser({required user_model.User user}) async {
     try {
       final request = await sharedPreferences.setString(key, user.toJson());
-      if (!request) Left(Failure(errorMessage: "General Error Fail To Save"));
+      if (!request) {
+        return Left(Failure(errorMessage: "General Error Fail To Save"));
+      }
       return const Right(true);
     } catch (e) {
       return Left(Failure(errorMessage: "General Error ${e.toString()}"));

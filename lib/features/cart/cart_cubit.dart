@@ -74,7 +74,7 @@ class CartCubit extends Cubit<GenericState> {
       (failure) => emit(GenericErrorState(errorMessage: failure.errorMessage)),
       (_) {
         _cart = [];
-        emit(GenericLoadedState(data: const []));
+        emit(GenericLoadedState(data:  const []));
       },
     );
   }
