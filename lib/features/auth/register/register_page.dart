@@ -93,7 +93,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 ),
                               ),
                               label: "Password",
-                              obscureText: true,
+                              obscureText: _isObscureText,
                               controller: _passwordController,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
