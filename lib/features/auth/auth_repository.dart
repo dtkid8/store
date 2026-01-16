@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:store/core/failure.dart';
 import 'user.dart' as user_model;
 
@@ -16,10 +17,10 @@ abstract class AuthRepositoryProtocol {
 
 class AuthRepository extends AuthRepositoryProtocol {
   final FirebaseAuth firebaseAuth;
-  final SharedPreferences sharedPreferences;
+  final FlutterSecureStorage secureStorage;
   AuthRepository({
     required this.firebaseAuth,
-    required this.sharedPreferences,
+    required this.secureStorage,
   });
   static const key = "USER_KEY";
 
@@ -33,9 +34,11 @@ class AuthRepository extends AuthRepositoryProtocol {
       );
       await firebaseAuth.signOut();
       return const Right(true);
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch (e, stackTrace) {
+      await Sentry.captureException(e, stackTrace: stackTrace);
       return Left(Failure(errorMessage: "Authentication Error ${e.code}"));
-    } catch (e) {
+    } catch (e, stackTrace) {
+      await Sentry.captureException(e, stackTrace: stackTrace);
       return Left(Failure(errorMessage: "General Error ${e.toString()}"));
     }
   }
@@ -52,9 +55,11 @@ class AuthRepository extends AuthRepositoryProtocol {
         return Left(Failure(errorMessage: "Authentication Error Fail Login"));
       }
       return Right(user_model.User(email: response.user?.email ?? ""));
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch (e, stackTrace) {
+      await Sentry.captureException(e, stackTrace: stackTrace);
       return Left(Failure(errorMessage: "Authentication Error ${e.code}"));
-    } catch (e) {
+    } catch (e, stackTrace) {
+      await Sentry.captureException(e, stackTrace: stackTrace);
       return Left(Failure(errorMessage: "General Error ${e.toString()}"));
     }
   }
@@ -62,12 +67,10 @@ class AuthRepository extends AuthRepositoryProtocol {
   @override
   Future<Either<Failure, bool>> addUser({required user_model.User user}) async {
     try {
-      final request = await sharedPreferences.setString(key, user.toJson());
-      if (!request) {
-        return Left(Failure(errorMessage: "General Error Fail To Save"));
-      }
+      await secureStorage.write(key: key, value: user.toJson());
       return const Right(true);
-    } catch (e) {
+    } catch (e, stackTrace) {
+      await Sentry.captureException(e, stackTrace: stackTrace);
       return Left(Failure(errorMessage: "General Error ${e.toString()}"));
     }
   }
@@ -75,12 +78,13 @@ class AuthRepository extends AuthRepositoryProtocol {
   @override
   Future<Either<Failure, user_model.User>> getUser() async {
     try {
-      final result = sharedPreferences.getString(key) ?? "";
+      final result = await secureStorage.read(key: key) ?? "";
       if (result.isEmpty) {
         return Left(Failure(errorMessage: "Fail Get User Data"));
       }
       return Right(user_model.User.fromJson(result));
-    } catch (e) {
+    } catch (e, stackTrace) {
+      await Sentry.captureException(e, stackTrace: stackTrace);
       return Left(Failure(errorMessage: "General Error ${e.toString()}"));
     }
   }
@@ -88,12 +92,14 @@ class AuthRepository extends AuthRepositoryProtocol {
   @override
   Future<Either<Failure, bool>> logout() async {
     try {
-      sharedPreferences.remove(key);
+      await secureStorage.delete(key: key);
       await firebaseAuth.signOut();
       return const Right(true);
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch (e, stackTrace) {
+      await Sentry.captureException(e, stackTrace: stackTrace);
       return Left(Failure(errorMessage: "Authentication Error ${e.code}"));
-    } catch (e) {
+    } catch (e, stackTrace) {
+      await Sentry.captureException(e, stackTrace: stackTrace);
       return Left(Failure(errorMessage: "General Error ${e.toString()}"));
     }
   }

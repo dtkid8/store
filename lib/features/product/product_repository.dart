@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:store/core/failure.dart';
 import 'package:store/core/url.dart';
 import 'package:store/features/product/product.dart';
@@ -50,6 +51,7 @@ class ProductRepository extends ProductRepositoryProtocol {
         ),
       );
     } on DioException catch (e, stackTrace) {
+      await Sentry.captureException(e, stackTrace: stackTrace);
       return Left(
         Failure(
           errorMessage: "Request Error ${e.message}",
@@ -58,7 +60,8 @@ class ProductRepository extends ProductRepositoryProtocol {
           statusCode: e.response?.statusCode,
         ),
       );
-    } catch (e) {
+    } catch (e, stackTrace) {
+      await Sentry.captureException(e, stackTrace: stackTrace);
       return Left(Failure(errorMessage: "General Error ${e.toString()}"));
     }
   }

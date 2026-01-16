@@ -1,11 +1,15 @@
+import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:store/core/env.dart';
 import 'package:store/core/firebase_options.dart';
 import 'package:store/features/auth/auth_cubit.dart';
 import 'package:store/features/auth/auth_repository.dart';
@@ -24,8 +28,12 @@ import 'features/auth/login/login_page.dart';
 import 'features/auth/register/register_page.dart';
 import 'features/product/product.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Load environment variables
+  await dotenv.load(fileName: ".env");
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -36,44 +44,53 @@ void main() async {
   Hive.registerAdapter(CategoryAdapter());
   Hive.registerAdapter(CartAdapter());
 
-  Box<Cart> cartBox = await Hive.openBox<Cart>('cartBox');
+  final Box<Cart> cartBox = await Hive.openBox<Cart>('cartBox');
   final CartRepository cartRepository = CartRepository(cartBox);
 
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-  final SharedPreferences sharedPreferences =
-      await SharedPreferences.getInstance();
+  const FlutterSecureStorage secureStorage = FlutterSecureStorage();
   final Dio client = Dio();
-  final AuthRepository authRepository = AuthRepository(
-      firebaseAuth: firebaseAuth, sharedPreferences: sharedPreferences);
+  final AuthRepository authRepository =
+      AuthRepository(firebaseAuth: firebaseAuth, secureStorage: secureStorage);
   final ProductRepository productRepository = ProductRepository(client: client);
   final CategoryRepository categoryRepository =
       CategoryRepository(client: client);
-  runApp(
-    MultiRepositoryProvider(
-      providers: [
-        RepositoryProvider(
-          create: (context) => authRepository,
-        ),
-        RepositoryProvider(
-          create: (context) => productRepository,
-        ),
-        RepositoryProvider(
-          create: (context) => categoryRepository,
-        ),
-        RepositoryProvider(
-          create: (context) => cartRepository,
-        ),
-      ],
-      child: MultiBlocProvider(
+
+  // Initialize Sentry
+  await SentryFlutter.init(
+    (options) {
+      options.dsn = Env.sentryDsn;
+      options.environment = Env.environment;
+      options.tracesSampleRate = Env.isProduction ? 0.2 : 1.0;
+      options.debug = Env.isDevelopment;
+    },
+    appRunner: () => runApp(
+      MultiRepositoryProvider(
         providers: [
-          BlocProvider(
-            create: (context) => AuthCubit(repository: authRepository),
+          RepositoryProvider(
+            create: (context) => authRepository,
           ),
-          BlocProvider(
-            create: (context) => CartCubit(cartRepository: cartRepository),
+          RepositoryProvider(
+            create: (context) => productRepository,
+          ),
+          RepositoryProvider(
+            create: (context) => categoryRepository,
+          ),
+          RepositoryProvider(
+            create: (context) => cartRepository,
           ),
         ],
-        child: const StoreApp(),
+        child: MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (context) => AuthCubit(repository: authRepository),
+            ),
+            BlocProvider(
+              create: (context) => CartCubit(cartRepository: cartRepository),
+            ),
+          ],
+          child: const StoreApp(),
+        ),
       ),
     ),
   );

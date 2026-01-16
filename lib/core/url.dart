@@ -1,5 +1,7 @@
+import 'package:store/core/env.dart';
+
 class Url {
-  static const baseUrl = "https://api.escuelajs.co/api/v1";
-  static const product = "$baseUrl/products";
-  static const category = "$baseUrl/categories";
+  static String get baseUrl => Env.baseUrl;
+  static String get product => "$baseUrl/products";
+  static String get category => "$baseUrl/categories";
 }

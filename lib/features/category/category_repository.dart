@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:store/features/category/category.dart';
 import 'package:store/features/category/category_response.dart';
 import '../../core/failure.dart';
@@ -34,6 +35,7 @@ class CategoryRepository extends CategoryRepositoryProtocol {
         ),
       );
     } on DioException catch (e, stackTrace) {
+      await Sentry.captureException(e, stackTrace: stackTrace);
       return Left(
         Failure(
           errorMessage: "Request Error ${e.message}",
@@ -42,7 +44,8 @@ class CategoryRepository extends CategoryRepositoryProtocol {
           statusCode: e.response?.statusCode,
         ),
       );
-    } catch (e) {
+    } catch (e, stackTrace) {
+      await Sentry.captureException(e, stackTrace: stackTrace);
       return Left(Failure(errorMessage: "General Error ${e.toString()}"));
     }
   }

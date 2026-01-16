@@ -10,18 +10,18 @@ import '../../mock.dart';
 void main() {
   late AuthRepository repository;
   late MockFirebaseAuth mockFirebaseAuth;
-  late MockSharedPreferences mockSharedPreferences;
+  late MockFlutterSecureStorage mockSecureStorage;
   late MockUserCredential mockUserCredential;
   late MockUser mockUser;
 
   setUp(() {
     mockFirebaseAuth = MockFirebaseAuth();
-    mockSharedPreferences = MockSharedPreferences();
+    mockSecureStorage = MockFlutterSecureStorage();
     mockUserCredential = MockUserCredential();
     mockUser = MockUser();
     repository = AuthRepository(
       firebaseAuth: mockFirebaseAuth,
-      sharedPreferences: mockSharedPreferences,
+      secureStorage: mockSecureStorage,
     );
   });
 
@@ -122,28 +122,28 @@ void main() {
 
     test('addUser returns true when successful', () async {
       // Arrange
-      when(() => mockSharedPreferences.setString(
-            AuthRepository.key,
-            any(),
-          )).thenAnswer((_) async => true);
+      when(() => mockSecureStorage.write(
+            key: AuthRepository.key,
+            value: any(named: 'value'),
+          )).thenAnswer((_) async {});
 
       // Act
       final result = await repository.addUser(user: testUser);
 
       // Assert
       expect(result.isRight(), true);
-      verify(() => mockSharedPreferences.setString(
-            AuthRepository.key,
-            testUser.toJson(),
+      verify(() => mockSecureStorage.write(
+            key: AuthRepository.key,
+            value: testUser.toJson(),
           )).called(1);
     });
 
     test('addUser returns Failure when saving fails', () async {
       // Arrange
-      when(() => mockSharedPreferences.setString(
-            AuthRepository.key,
-            testUser.toJson(),
-          )).thenAnswer((_) async => false);
+      when(() => mockSecureStorage.write(
+            key: AuthRepository.key,
+            value: testUser.toJson(),
+          )).thenThrow(Exception('Storage error'));
 
       // Act
       final result = await repository.addUser(user: testUser);
@@ -151,15 +151,15 @@ void main() {
       // Assert
       expect(result.isLeft(), true);
       result.fold(
-        (failure) => expect(failure.errorMessage, 'General Error Fail To Save'),
+        (failure) => expect(failure.errorMessage.contains('General Error'), true),
         (_) => fail('Expected failure, got success'),
       );
     });
 
     test('getUser returns user when successful', () async {
       // Arrange
-      when(() => mockSharedPreferences.getString(AuthRepository.key))
-          .thenReturn(testUser.toJson());
+      when(() => mockSecureStorage.read(key: AuthRepository.key))
+          .thenAnswer((_) async => testUser.toJson());
 
       // Act
       final result = await repository.getUser();
@@ -174,8 +174,8 @@ void main() {
 
     test('getUser returns Failure when no user is found', () async {
       // Arrange
-      when(() => mockSharedPreferences.getString(AuthRepository.key))
-          .thenReturn(null);
+      when(() => mockSecureStorage.read(key: AuthRepository.key))
+          .thenAnswer((_) async => null);
 
       // Act
       final result = await repository.getUser();
@@ -190,8 +190,8 @@ void main() {
 
     test('logout returns true when successful', () async {
       // Arrange
-      when(() => mockSharedPreferences.remove(AuthRepository.key))
-          .thenAnswer((_) async => true);
+      when(() => mockSecureStorage.delete(key: AuthRepository.key))
+          .thenAnswer((_) async {});
       when(() => mockFirebaseAuth.signOut()).thenAnswer((_) async {});
 
       // Act
@@ -199,14 +199,14 @@ void main() {
 
       // Assert
       expect(result.isRight(), true);
-      verify(() => mockSharedPreferences.remove(AuthRepository.key)).called(1);
+      verify(() => mockSecureStorage.delete(key: AuthRepository.key)).called(1);
       verify(() => mockFirebaseAuth.signOut()).called(1);
     });
 
     test('logout returns Failure on FirebaseAuthException', () async {
       // Arrange
-      when(() => mockSharedPreferences.remove(AuthRepository.key))
-          .thenAnswer((_) async => true);
+      when(() => mockSecureStorage.delete(key: AuthRepository.key))
+          .thenAnswer((_) async {});
       when(() => mockFirebaseAuth.signOut())
           .thenThrow(FirebaseAuthException(code: 'user-not-found'));
 

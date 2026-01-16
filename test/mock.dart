@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:store/features/auth/auth_repository.dart';
 import 'package:store/features/cart/cart.dart';
 import 'package:store/features/cart/cart_repository.dart';
@@ -15,7 +15,7 @@ class MockCartBox extends Mock implements Box<Cart> {}
 
 class MockFirebaseAuth extends Mock implements FirebaseAuth {}
 
-class MockSharedPreferences extends Mock implements SharedPreferences {}
+class MockFlutterSecureStorage extends Mock implements FlutterSecureStorage {}
 
 class MockUserCredential extends Mock implements UserCredential {}
 
